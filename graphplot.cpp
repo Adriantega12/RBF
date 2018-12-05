@@ -31,6 +31,12 @@ GraphPlot::GraphPlot(QCustomPlot* graphPlot) {
     kMeans->setPen(QPen(Qt::red));
     kMeans->setLineStyle(QCPGraph::lsNone);
     kMeans->setScatterStyle(QCPScatterStyle::ssCross);
+
+    // Outputs
+    outputs = new QCPGraph( plot->xAxis, plot->yAxis );
+    outputs->setPen(QPen(Qt::green));
+    outputs->setLineStyle(QCPGraph::lsNone);
+    outputs->setScatterStyle(QCPScatterStyle::ssDisc);
     }
 
 void GraphPlot::setFuncData(QVector<double> x, QVector<double> y) {
@@ -40,6 +46,11 @@ void GraphPlot::setFuncData(QVector<double> x, QVector<double> y) {
 
 void GraphPlot::setKMeansData(QVector<double> x, QVector<double> y) {
     kMeans->setData(x, y);
+    plot->replot();
+}
+
+void GraphPlot::setOutputs(QVector<double> x, QVector<double> y) {
+    outputs->setData(x, y);
     plot->replot();
     }
 

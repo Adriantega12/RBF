@@ -85,10 +85,51 @@ void MainWindow::on_initBtn_clicked() {
     QVector<QVector<double>> phis(kMeansSize, QVector<double>(size + 1));
     for (int i = 0; i < kMeansSize; ++i) {
         for (int j = 0; j <= size; ++j) {
-            phis[i][j] = exp(- pow(abs(xK[i] - x[j]), 2) / 2 * sigmaK[i] * sigmaK[i]);
+            phis[i][j] = exp(- (pow(xK[i] - x[j], 2) + pow(yK[i] - y[j], 2)) /
+                    2 * sigmaK[i] * sigmaK[i]);
             }
         }
+    qDebug() << phis;
 
+    // Perceptron init
+    QVector<double> weights(kMeansSize + 1);
+    for (int i = 0; i < weights.size(); ++i) {
+        weights[i] = rdg();
+        }
+
+    // Perceptron algorithm
+    QVector<double> outputs(size);
+    int epochs = 0;
+    int maxEpochs = 1000;
+    double error = 0;
+    double errorPerEpoch;
+    double accum = 0.0;
+    bool done = false;
+
+    while (epochs < maxEpochs and !done) {
+        done = true;
+        errorPerEpoch = 0.0;
+        for (int i = 0; i < size; ++i) {
+            accum = 0.0;
+            for (int j = 0; j < weights.size(); ++j) {
+                accum += (j == 0 ? -1 * weights[j] : phis[j - 1][i] * weights[j]);
+                }
+            outputs[i] = accum;
+            error = y[i] - outputs[i];
+            if (error != 0.0) {
+                for(int j = 0; j < weights.size(); ++j) {
+                    weights[j] += learningRate * error * (j == 0 ? -1 : phis[j - 1][i]);
+                    }
+                errorPerEpoch += error;
+                done = false;
+                }
+            }
+        epochs++;
+        }
+
+    gPlot->setOutputs(x, outputs);
+
+    qDebug() << outputs;
     }
 
 void MainWindow::on_stepSlider_sliderMoved(int position) {

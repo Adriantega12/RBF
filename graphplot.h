@@ -13,6 +13,7 @@ class GraphPlot {
         // Graphs
         QCPGraph* destFunc;
         QCPGraph* kMeans;
+        QCPGraph* outputs;
 
         void initPlot();
 
@@ -23,6 +24,7 @@ class GraphPlot {
 
         void setFuncData(QVector<double> x, QVector<double> y);
         void setKMeansData(QVector<double> x, QVector<double> y);
+        void setOutputs(QVector<double> x, QVector<double> y);
 
         void drawCircles(QVector<double> x, QVector<double> y, QVector<double> sigma);
         // void add(QVector<double> x, QVector<double> y);
