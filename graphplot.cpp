@@ -43,12 +43,12 @@ void GraphPlot::setKMeansData(QVector<double> x, QVector<double> y) {
     plot->replot();
     }
 
-void GraphPlot::drawCircles(QVector<double> x, QVector<double> y, double sigma) {
+void GraphPlot::drawCircles(QVector<double> x, QVector<double> y, QVector<double> sigma) {
     for (int i = 0; i < x.size(); ++i) {
         QCPItemEllipse *ellipse = new QCPItemEllipse(plot);
         ellipse->setAntialiased(true);
-        ellipse->topLeft->setCoords(x[i] - sigma, y[i] + sigma);
-        ellipse->bottomRight->setCoords(x[i] + sigma, y[i] - sigma);
+        ellipse->topLeft->setCoords(x[i] - sigma[i], y[i] + sigma[i]);
+        ellipse->bottomRight->setCoords(x[i] + sigma[i], y[i] - sigma[i]);
         ellipse->setPen(QPen(Qt::red));
         ellipse->setBrush(QBrush(QColor(255, 0, 0, 20)));
         }

@@ -28,7 +28,7 @@ void MainWindow::on_initBtn_clicked() {
 
     // Initiate K-Means points
     int kMeansSize = ui->kSB->value();
-    QVector<double> xK(kMeansSize), yK(kMeansSize), sigmaK(kMeansSize, 0.5);
+    QVector<double> xK(kMeansSize), yK(kMeansSize), sigmaK(kMeansSize, 0.0);
     for (int i = 0; i < kMeansSize; ++i) {
         xK[i] = rdg();
         yK[i] = rdg();
@@ -66,22 +66,23 @@ void MainWindow::on_initBtn_clicked() {
         } while (changed);
 
     // Get sigma
-    // First calculate max distance between any 2 centers
-    double maxDistance = 0.0;
-    double distance;
     for (int i = 0; i < kMeansSize; ++i) {
-        for (int j = i + 1; j < kMeansSize; ++j) {
-            distance = sqrt(pow(xK[i] - xK[j], 2) + pow(yK[i] - yK[j], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
+        double minDistance = 100.0;
+        double distance;
+        for (int j = 0; j < kMeansSize; ++j) {
+            if (i != j) {
+                distance = sqrt(pow(xK[i] - xK[j], 2) + pow(yK[i] - yK[j], 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    }
                 }
             }
+        sigmaK[i] = minDistance;
         }
 
 
-    double sigma = maxDistance / sqrt(kMeansSize);
-    qDebug() << sigma;
-    gPlot->drawCircles(xK, yK, sigma);
+    qDebug() << sigmaK;
+    gPlot->drawCircles(xK, yK, sigmaK);
     }
 
 void MainWindow::on_stepSlider_sliderMoved(int position) {

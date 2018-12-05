@@ -24,7 +24,7 @@ class GraphPlot {
         void setFuncData(QVector<double> x, QVector<double> y);
         void setKMeansData(QVector<double> x, QVector<double> y);
 
-        void drawCircles(QVector<double> x, QVector<double> y, double sigma);
+        void drawCircles(QVector<double> x, QVector<double> y, QVector<double> sigma);
         // void add(QVector<double> x, QVector<double> y);
     };
 
