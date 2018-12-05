@@ -5,6 +5,7 @@
 
 #include "randdouble.h"
 #include "graphplot.h"
+#include "errorplot.h"
 
 namespace Ui {
     class MainWindow;
@@ -16,6 +17,7 @@ class MainWindow : public QMainWindow {
     private:
         // UI
         GraphPlot* gPlot;
+        ErrorPlot* ePlot;
         Ui::MainWindow *ui;
 
         // Utilery

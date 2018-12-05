@@ -86,17 +86,18 @@ void MainWindow::perceptron() {
                 done = false;
                 }
             }
+        errorPerEpoch /= epochs == 0 ? 1.0 : 2.0;
         epochs++;
         gPlot->setOutputs(x, outputs); // Plot outputs
         updateLabels(epochs, 0, error);
+        ePlot->addData(epochs, errorPerEpoch);
         }
-    updateLabels(epochs, 0, error);
+    updateLabels(epochs, epochs, error);
     }
 
 void MainWindow::updateLabels(int currentEpoch, int convergeEpoch, double error) {
     ui->epochVal->setText(QString::number(currentEpoch));
     ui->convergeVal->setText(QString::number(convergeEpoch));
-    //ui->errorVal->setText(QString::number(error));
     }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -106,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     gPlot = new GraphPlot(ui->gPlot);
+    ePlot = new ErrorPlot(ui->errorPlot);
     }
 
 MainWindow::~MainWindow() {

@@ -27,13 +27,15 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     qcustomplot.cpp \
-    graphplot.cpp
+    graphplot.cpp \
+    errorplot.cpp
 
 HEADERS += \
         mainwindow.h \
     qcustomplot.h \
     graphplot.h \
-    randdouble.h
+    randdouble.h \
+    errorplot.h
 
 FORMS += \
         mainwindow.ui
