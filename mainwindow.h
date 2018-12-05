@@ -31,7 +31,6 @@ class MainWindow : public QMainWindow {
         ~MainWindow();
 private slots:
         void on_initBtn_clicked();
-        void on_stepSlider_actionTriggered(int action);
         void on_stepSlider_sliderMoved(int position);
 };
 
