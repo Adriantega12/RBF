@@ -1,77 +1,44 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    rdg(-5.0, 5.0) {
-    ui->setupUi(this);
-
-    gPlot = new GraphPlot(ui->gPlot);
-    }
-
-MainWindow::~MainWindow() {
-    delete gPlot;
-    delete ui;
-    }
-
-void MainWindow::on_initBtn_clicked() {
-    // Initiate function points
-    double step = ui->stepSlider->value() / 100.0;
-    int size = 10 / step;
-    QVector<double> x(size + 1), y(size + 1);
-    for (int i = 0; i <= size; ++i) {
-        x[i] = i * step - 5.0;
-        y[i] = sin(x[i]);
-        }
-    gPlot->setFuncData(x, y);
-
-    // Initiate K-Means points
-    int kMeansSize = ui->kSB->value();
-    QVector<double> xK(kMeansSize), yK(kMeansSize), sigmaK(kMeansSize, 0.0);
-    for (int i = 0; i < kMeansSize; ++i) {
-        xK[i] = rdg();
-        yK[i] = rdg();
-        }
-    gPlot->setKMeansData(xK, yK);
-
+void MainWindow::findMeanCenters() {
     // Find minimized centers
-    double learningRate = ui->lrSB->value();
-    QVector<double> prevXK(kMeansSize), prevYK(kMeansSize);
+    QVector<double> prevcentersX(kMeansSize), prevcentersY(kMeansSize);
     bool changed;
     do {
         changed = false;
-        for (int i = 0; i < size; ++i) { // For every input
+        for (int i = 0; i < x.size(); ++i) { // For every input
             // Find closest K mean
-            double minDistance = sqrt(pow(x[i] - xK[0], 2) + pow(y[i] - yK[0], 2)), distance;
+            double minDistance = sqrt(pow(x[i] - centersX[0], 2) + pow(y[i] - centersY[0], 2)), distance;
             int minIndex = 0;
             for (int j = 1; j < kMeansSize; ++j) { // For every k-means
-                distance = sqrt(pow(x[i] - xK[j], 2) + pow(y[i] - yK[j], 2));
+                distance = sqrt(pow(x[i] - centersX[j], 2) + pow(y[i] - centersY[j], 2));
                 if (distance < minDistance) {
                     minDistance = distance;
                     minIndex = j;
                     }
                 }
-            xK[minIndex] += learningRate * (x[i] - xK[minIndex]);
-            yK[minIndex] += learningRate * (y[i] - yK[minIndex]);
+            centersX[minIndex] += learningRate * (x[i] - centersX[minIndex]);
+            centersY[minIndex] += learningRate * (y[i] - centersY[minIndex]);
             }
         for (int i = 0; i < kMeansSize; ++i) {
-            if (xK[i] != prevXK[i] or yK[i] != prevYK[i]) {
+            if (centersX[i] != prevcentersX[i] or centersY[i] != prevcentersY[i]) {
                 changed = true;
                 }
-            prevXK[i] = xK[i];
-            prevYK[i] = yK[i];
+            prevcentersX[i] = centersX[i];
+            prevcentersY[i] = centersY[i];
             }
-        gPlot->setKMeansData(xK, yK);
+        gPlot->setKMeansData(centersX, centersY); // Plot data into graph
         } while (changed);
+    }
 
-    // Get sigma
+void MainWindow::getSigmas() {
     for (int i = 0; i < kMeansSize; ++i) {
         double minDistance = 100.0;
         double distance;
         for (int j = 0; j < kMeansSize; ++j) {
             if (i != j) {
-                distance = sqrt(pow(xK[i] - xK[j], 2) + pow(yK[i] - yK[j], 2));
+                distance = sqrt(pow(centersX[i] - centersX[j], 2) + pow(centersY[i] - centersY[j], 2));
                 if (distance < minDistance) {
                     minDistance = distance;
                     }
@@ -79,26 +46,22 @@ void MainWindow::on_initBtn_clicked() {
             }
         sigmaK[i] = minDistance;
         }
-    gPlot->drawCircles(xK, yK, sigmaK);
+    gPlot->drawCircles(centersX, centersY, sigmaK); // Plot the circles
+}
 
-    // Phis
-    QVector<QVector<double>> phis(kMeansSize, QVector<double>(size + 1));
+void MainWindow::getPhis() {
     for (int i = 0; i < kMeansSize; ++i) {
-        for (int j = 0; j <= size; ++j) {
-            phis[i][j] = exp(- (pow(xK[i] - x[j], 2) + pow(yK[i] - y[j], 2)) /
-                    2 * sigmaK[i] * sigmaK[i]);
+        for (int j = 0; j < x.size(); ++j) {
+            phis[i][j] = exp(
+                         - (pow(centersX[i] - x[j], 2) + pow(centersY[i] - y[j], 2)) /
+                            2 * sigmaK[i] * sigmaK[i]
+                           );
             }
         }
-    qDebug() << phis;
+    }
 
-    // Perceptron init
-    QVector<double> weights(kMeansSize + 1);
-    for (int i = 0; i < weights.size(); ++i) {
-        weights[i] = rdg();
-        }
-
+void MainWindow::perceptron() {
     // Perceptron algorithm
-    QVector<double> outputs(size);
     int epochs = 0;
     int maxEpochs = 1000;
     double error = 0;
@@ -109,7 +72,7 @@ void MainWindow::on_initBtn_clicked() {
     while (epochs < maxEpochs and !done) {
         done = true;
         errorPerEpoch = 0.0;
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < x.size(); ++i) {
             accum = 0.0;
             for (int j = 0; j < weights.size(); ++j) {
                 accum += (j == 0 ? -1 * weights[j] : phis[j - 1][i] * weights[j]);
@@ -128,10 +91,83 @@ void MainWindow::on_initBtn_clicked() {
         }
 
     gPlot->setOutputs(x, outputs);
+    }
 
-    qDebug() << outputs;
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    rdg(-5.0, 5.0) {
+    ui->setupUi(this);
+
+    gPlot = new GraphPlot(ui->gPlot);
+    }
+
+MainWindow::~MainWindow() {
+    delete gPlot;
+    delete ui;
+    }
+
+void MainWindow::on_initBtn_clicked() {
+    // Initiate input points
+    double step = ui->stepSlider->value() / 100.0;
+    int size = 10 / step;
+    x.clear();
+    y.clear();
+    x.resize(size + 1);
+    y.resize(size + 1);
+    for (int i = 0; i <= size; ++i) {
+        x[i] = i * step - 5.0;
+        y[i] = sin(x[i]);
+        }
+    gPlot->setFuncData(x, y);
+
+    // Initiate K-Means points
+    kMeansSize = ui->kSB->value();
+    centersX.clear();
+    centersY.clear();
+    sigmaK.clear();
+    centersX.resize(kMeansSize);
+    centersY.resize(kMeansSize);
+    sigmaK.resize(kMeansSize);
+    for (int i = 0; i < kMeansSize; ++i) {
+        centersX[i] = rdg();
+        centersY[i] = rdg();
+        }
+    gPlot->setKMeansData(centersX, centersY);
+
+    // Initiate learning rate
+    learningRate = ui->lrSB->value();
+
+    // Initiate phis
+    phis.clear();
+    phis.resize(kMeansSize);
+    for (int i = 0; i < kMeansSize; ++i) {
+        phis[i].clear();
+        phis[i].resize(size + 1);
+        }
+
+    // Initiate outputs
+    outputs.clear();
+    outputs.resize(size + 1);
+
+    // Initiate weights
+    weights.clear();
+    weights.resize(kMeansSize + 1);
+    for (int i = 0; i < weights.size(); ++i) {
+        weights[i] = rdg();
+        }
     }
 
 void MainWindow::on_stepSlider_sliderMoved(int position) {
     ui->stepLbl->setText(QString::number(position/100.0));
+    }
+
+void MainWindow::on_trainBtn_clicked() {
+    // Phase 1 of RBF: Means, sigmas and phis
+    findMeanCenters();
+    getSigmas();
+    getPhis();
+
+    // Phase 2 of RBF: Train perceptron to get outputs
+    perceptron();
     }
