@@ -63,7 +63,6 @@ void MainWindow::getPhis() {
 void MainWindow::perceptron() {
     // Perceptron algorithm
     int epochs = 0;
-    int maxEpochs = 1000;
     double error = 0;
     double errorPerEpoch;
     double accum = 0.0;
@@ -88,9 +87,16 @@ void MainWindow::perceptron() {
                 }
             }
         epochs++;
+        gPlot->setOutputs(x, outputs); // Plot outputs
+        updateLabels(epochs, 0, error);
         }
+    updateLabels(epochs, 0, error);
+    }
 
-    gPlot->setOutputs(x, outputs);
+void MainWindow::updateLabels(int currentEpoch, int convergeEpoch, double error) {
+    ui->epochVal->setText(QString::number(currentEpoch));
+    ui->convergeVal->setText(QString::number(convergeEpoch));
+    //ui->errorVal->setText(QString::number(error));
     }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -156,10 +162,18 @@ void MainWindow::on_initBtn_clicked() {
     for (int i = 0; i < weights.size(); ++i) {
         weights[i] = rdg();
         }
+
+    // Perceptron
+    maxEpochs = ui->epochSB->value();
+
+    // Initiate labels
+    ui->epochVal->setText(QString::number(0));
+    ui->convergeVal->setText("#");
+    //ui->errorVal->setText("#");
     }
 
 void MainWindow::on_stepSlider_sliderMoved(int position) {
-    ui->stepLbl->setText(QString::number(position/100.0));
+    ui->stepLbl->setText("Step: "+ QString::number(position/100.0));
     }
 
 void MainWindow::on_trainBtn_clicked() {

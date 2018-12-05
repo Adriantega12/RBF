@@ -34,12 +34,20 @@ class MainWindow : public QMainWindow {
         int kMeansSize;
         double learningRate;
 
-        // Algorithm parts
+        // Perceptrón
+        int maxEpochs;
+
+        // Algorithm
+        // Phase 1
         void findMeanCenters();
         void getSigmas();
         void getPhis();
 
+        // Phase 2
         void perceptron();
+
+        // Update label values
+        void updateLabels(int currentEpoch, int convergeEpoch, double error);
 
     public:
         explicit MainWindow(QWidget *parent = 0);
