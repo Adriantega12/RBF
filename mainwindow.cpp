@@ -79,10 +79,16 @@ void MainWindow::on_initBtn_clicked() {
             }
         sigmaK[i] = minDistance;
         }
-
-
-    qDebug() << sigmaK;
     gPlot->drawCircles(xK, yK, sigmaK);
+
+    // Phis
+    QVector<QVector<double>> phis(kMeansSize, QVector<double>(size + 1));
+    for (int i = 0; i < kMeansSize; ++i) {
+        for (int j = 0; j <= size; ++j) {
+            phis[i][j] = exp(- pow(abs(xK[i] - x[j]), 2) / 2 * sigmaK[i] * sigmaK[i]);
+            }
+        }
+
     }
 
 void MainWindow::on_stepSlider_sliderMoved(int position) {
