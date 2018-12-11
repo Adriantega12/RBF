@@ -39,7 +39,7 @@
      <rect>
       <x>620</x>
       <y>340</y>
-      <width>202</width>
+      <width>271</width>
       <height>261</height>
      </rect>
     </property>
@@ -76,6 +76,26 @@
        <item>
         <property name="text">
          <string>y = sin(x)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>y = cos(x)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>y = tan(x)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>y = x²</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>y = x³</string>
         </property>
        </item>
       </widget>

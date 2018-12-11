@@ -51,6 +51,8 @@ class MainWindow : public QMainWindow {
         // Update label values
         void updateLabels(int currentEpoch, int convergeEpoch, double error);
 
+        double function(double x, int index);
+
     public:
         explicit MainWindow(QWidget *parent = 0);
         ~MainWindow();

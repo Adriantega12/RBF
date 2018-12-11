@@ -79,7 +79,7 @@ void MainWindow::perceptron() {
             outputs[i] = accum;
             error = y[i] - outputs[i];
             if (error != 0.0) {
-                for(int j = 0; j < weights.size(); ++j) {
+                for (int j = 0; j < weights.size(); ++j) {
                     weights[j] += learningRate * error * (j == 0 ? -1 : phis[j - 1][i]);
                     }
                 errorPerEpoch += error;
@@ -98,6 +98,30 @@ void MainWindow::perceptron() {
 void MainWindow::updateLabels(int currentEpoch, int convergeEpoch, double error) {
     ui->epochVal->setText(QString::number(currentEpoch));
     ui->convergeVal->setText(QString::number(convergeEpoch));
+}
+
+double MainWindow::function(double x, int index) {
+    double y;
+    switch (index) {
+        case 0:
+            y = sin(x);
+            break;
+        case 1:
+            y = cos(x);
+            break;
+        case 2:
+            y = tan(x);
+            break;
+        case 3:
+            y = x*x;
+            break;
+        case 4:
+            y = x*x*x;
+            break;
+        default:
+            break;
+        }
+    return y;
     }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -119,13 +143,14 @@ void MainWindow::on_initBtn_clicked() {
     // Initiate input points
     double step = ui->stepSlider->value() / 100.0;
     int size = 10 / step;
+    int funcIndex = ui->funcCB->currentIndex();
     x.clear();
     y.clear();
     x.resize(size + 1);
     y.resize(size + 1);
     for (int i = 0; i <= size; ++i) {
         x[i] = i * step - 5.0;
-        y[i] = sin(x[i]);
+        y[i] = function(x[i], funcIndex);
         }
     gPlot->setFuncData(x, y);
 
